@@ -12,6 +12,12 @@ cd /root/spark-ec2
 
 source ec2-variables.sh
 
+function do_mount {
+  mkdir /mnt$1
+  mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sd$2
+  mount -o $EXT4_MOUNT_OPTS /dev/sd$2 /mnt$1
+}
+
 # Set hostname based on EC2 private DNS name, so that it is set correctly
 # even if the instance is restarted with a different private DNS name
 PRIVATE_DNS=`wget -q -O - http://instance-data.ec2.internal/latest/meta-data/local-hostname`
@@ -53,12 +59,6 @@ if [[ $instance_type == i2* ]]; then
   fi
 
 fi
-
-function do_mount {
-  mkdir /mnt$1
-  mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sd$2
-  mount -o $EXT4_MOUNT_OPTS /dev/sd$2 /mnt$1
-}
 
 # Mount options to use for ext3 and xfs disks (the ephemeral disks
 # are ext3, but we use xfs for EBS volumes to format them faster)
