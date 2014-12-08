@@ -35,13 +35,30 @@ if [[ $instance_type == r3* ]]; then
   mount -o $EXT4_MOUNT_OPTS /dev/sdb /mnt
 
   if [[ $instance_type == "r3.8xlarge" ]]; then
-    mkdir /mnt2
     # To turn TRIM support on, uncomment the following line.
     #echo '/dev/sdc /mnt2  ext4  defaults,noatime,nodiratime,discard 0 0' >> /etc/fstab
+    mkdir /mnt2
     mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sdc
     mount -o $EXT4_MOUNT_OPTS /dev/sdc /mnt2
   fi
+
+  if [[ $instance_type == i2.8xlarge ]]; then
+    do_mount 2 c
+    do_mount 3 d
+    do_mount 4 e
+    do_mount 5 f
+    do_mount 6 g
+    do_mount 7 h
+    do_mount 8 i
+  fi
+
 fi
+
+function do_mount {
+  mkdir /mnt$1
+  mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sd$2
+  mount -o $EXT4_MOUNT_OPTS /dev/sd$2 /mnt$1
+}
 
 # Mount options to use for ext3 and xfs disks (the ephemeral disks
 # are ext3, but we use xfs for EBS volumes to format them faster)
